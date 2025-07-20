@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Math o-4 - Dark Theme Default with Friendly Math Chatbot</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      transition: background-color 0.7s ease, color 0.7s ease;
+    }
+    .chat-container {
+      width: 100%;
+      max-width: 600px;
+      height: 90vh;
+      background: #1e1e1e;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 12px rgba(255, 140, 102, 0.5);
+      animation: float 10s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      transition: background-color 0.7s ease, color 0.7s ease, box-shadow 0.7s ease;
+    }
+    .header {
+      padding: 20px 24px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #FF8C66;
+      border-bottom: 1px solid #FFBCA8;
+      user-select: none;
+      text-shadow: 0 0 8px #FF8C66bb;
+    }
+    #chatBox {
+      flex-grow: 1;
+      padding: 20px 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: #2a2a2a;
+      border-radius: 0 0 12px 12px;
+      box-shadow: inset 0 0 12px #ff7c3e66;
+      color: #ddd;
+      transition: background-color 0.7s ease, color 0.7s ease, box-shadow 0.7s ease;
+    }
+    #chatBox::-webkit-scrollbar {
+      width: 8px;
+    }
+    #chatBox::-webkit-scrollbar-thumb {
+      background: rgba(255, 140, 102, 0.5);
+      border-radius: 10px;
+    }
+    .msg {
+      max-width: 75%;
+      padding: 14px 20px;
+      border-radius: 24px;
+      font-size: 1rem;
+      line-height: 1.4;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      animation: fadeInUp 0.3s ease forwards;
+      box-shadow: inset 0 0 8px #FF8C66;
+      transition: background-color 0.7s ease, color 0.7s ease, box-shadow 0.7s ease;
+    }
+    .msg.user {
+      background: #FF8C66;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
+      box-shadow: 0 4px 12px #FF8C6688;
+    }
+    .msg.bot {
+      background: #3a3a3a;
+      color: #ffb88c;
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+      box-shadow: inset 0 0 12px #FFBCA8;
+    }
+    .msg.error {
+      background: #FF6B6B;
+      color: white;
+      box-shadow: 0 0 12px #FF6B6B88;
+    }
+    .msg img {
+      max-width: 100%;
+      border-radius: 12px;
+      margin-top: 8px;
+    }
+    form.input-area {
+      display: flex;
+      padding: 16px 20px;
+      background: #2a2a2a;
+      border-top: 1px solid #FF8C66;
+      gap: 12px;
+      align-items: center;
+      border-radius: 0 0 12px 12px;
+      transition: background-color 0.7s ease;
+    }
+    form.input-area input[type="text"] {
+      flex-grow: 1;
+      padding: 14px 18px;
+      border-radius: 30px;
+      border: 1.5px solid #FF8C66;
+      background: #3a3a3a;
+      color: #ffbb99;
+      font-size: 1rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.7s ease, color 0.7s ease;
+    }
+    form.input-area input[type="text"]:focus {
+      outline: none;
+      border-color: #E37B4A;
+      box-shadow: 0 0 8px 2px #FF8C6688;
+    }
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      font-size: 1.3rem;
+      color: #FF8C66;
+      background: transparent;
+      transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    button:hover:not(:disabled) {
+      background: #FF8C66;
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 0 15px #FF8C66aa;
+    }
+    button:disabled {
+      color: #FFBCA8;
+      cursor: not-allowed;
+    }
+    button[type="submit"] {
+      border-radius: 30px;
+      width: auto;
+      padding: 12px 24px;
+      font-weight: 600;
+      font-size: 1rem;
+      background: #FF8C66;
+      color: white;
+      box-shadow: 0 0 20px #FF8C66aa;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    button[type="submit"]:hover {
+      background: #E3783E;
+      box-shadow: 0 0 25px #E3783Ecc;
+      transform: scale(1.05);
+    }
+    #imageInput {
+      display: none;
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+        box-shadow:
+          0 10px 20px rgba(255, 140, 102, 0.4),
+          0 6px 6px rgba(255, 140, 102, 0.3);
+      }
+      50% {
+        transform: translateY(-6px);
+        box-shadow:
+          0 14px 28px rgba(255, 140, 102, 0.5),
+          0 8px 8px rgba(255, 140, 102, 0.4);
+      }
+    }
+    header {
+      width: 100%;
+      max-width: 600px;
+      padding: 16px 24px;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #FF8C66;
+      text-align: center;
+      user-select: none;
+      border-bottom: 2px solid #FF8C66;
+      box-shadow: 0 2px 8px #FF8C6644;
+      background: #1e1e1e;
+      flex-shrink: 0;
+      transition: background-color 0.7s ease, color 0.7s ease, box-shadow 0.7s ease;
+    }
+    body {
+      display: flex;
+      flex-direction: column;  /* stack vertically */
+      justify-content: center; /* center vertically */
+      align-items: center;     /* center horizontally */
+      height: 100vh;
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      transition: background-color 0.7s ease, color 0.7s ease;
+    }
+    /* THEME TOGGLE BUTTON */
+    #themeToggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #FF8C66;
+      color: white;
+      font-size: 24px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(255, 140, 102, 0.6);
+      transition: background-color 0.5s ease, color 0.5s ease, transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      z-index: 9999;
+    }
+    #themeToggle:hover {
+      background: #e3783e;
+      transform: scale(1.1);
+      box-shadow: 0 6px 18px rgba(227, 120, 62, 0.8);
+    }
+
+    /* LIGHT MODE STYLES */
+    body.light-mode {
+      background: #FFFFFF;
+      color: #0B0B0D;
+    }
+    body.light-mode .chat-container {
+      background: #FF8C66;
+      box-shadow: 0 4px 12px rgba(255, 140, 102, 0.25);
+    }
+    body.light-mode header {
+      background: #fff;
+      border-bottom-color: #FFBCA8;
+      color: #FF8C66;
+      text-shadow: 0 0 8px #FF8C6644;
+    }
+    body.light-mode #chatBox {
+      background: white;
+      color: #222;
+      box-shadow: inset 0 0 10px #ff7c3e44;
+    }
+    body.light-mode form.input-area {
+      background: #FFF1E6;
+      border-top-color: #FFBCA8;
+    }
+    body.light-mode form.input-area input[type="text"] {
+      background: white;
+      color: #6B3E1B;
+      border-color: #FF8C66;
+    }
+
+    #particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none; /* So it doesn't block clicks */
+      z-index: 0; /* Behind everything */
+      mix-blend-mode: screen; /* Makes particles blend nicely */
+    }
+  </style>
+</head>
+<body class="dark-mode">
+  <header>Math o-4</header>
+  <!-- THEME TOGGLE BUTTON -->
+  <button id="themeToggle" aria-label="Toggle light and dark theme" title="Toggle light/dark theme">☀️</button>
+  <canvas id="particles"></canvas>
+
+  <div class="chat-container" role="main" aria-label="Math chatbot interface">
+    <div class="header">Math Chatbot</div>
+
+    <div id="chatBox" aria-live="polite" aria-relevant="additions"></div>
+
+    <form id="chatForm" class="input-area" autocomplete="off" role="search" aria-label="Chat input form">
+      <button type="button" id="imageBtn" title="Upload screenshot 📷" aria-label="Upload screenshot">📷</button>
+      <input type="file" id="imageInput" accept="image/*" aria-hidden="true" />
+      <button type="button" id="voiceBtn" title="Start voice input 🎤" aria-label="Start voice input">🎤</button>
+      <input id="chatInput" type="text" placeholder="Type or speak your math question..." aria-label="Chat input" />
+      <button type="submit" aria-label="Send message">Send</button>
+    </form>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+
+  <script>
+    const chatBox = document.getElementById('chatBox');
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const imageBtn = document.getElementById('imageBtn');
+    const imageInput = document.getElementById('imageInput');
+    const themeToggle = document.getElementById('themeToggle');
+
+    let variables = {};
+    const WOLFRAM_APPID = '23KKQ9JWEG';  // Put your Wolfram Alpha AppID here
+
+    function appendMessage(message, sender = 'bot', isError = false) {
+      const msg = document.createElement('div');
+      msg.className = `msg ${sender}` + (isError ? ' error' : '');
+      msg.textContent = message;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function appendHTMLMessage(htmlContent, sender = 'bot', isError = false) {
+      const msg = document.createElement('div');
+      msg.className = `msg ${sender}` + (isError ? ' error' : '');
+      msg.innerHTML = htmlContent;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function preprocess(input) {
+      let text = input.toLowerCase();
+      const phrasesToRemove = [
+        /\bwhat(?:'s| is)?\b/g,
+        /\bwhats\b/g,
+        /\bthe answer (to|of|for)\b/g,
+        /\bplease\b/g,
+        /\bcalculate\b/g,
+        /\bsolve\b/g,
+        /\bfind\b/g,
+        /\banswer\b/g,
+        /\bthen\b/g,
+        /\bif\b/g,
+      ];
+      phrasesToRemove.forEach(pattern => text = text.replace(pattern, ''));
+      text = text
+        .replace(/plus/g, '+')
+        .replace(/minus/g, '-')
+        .replace(/times|multiplied by| x /g, '*')
+        .replace(/divided by| over /g, '/')
+        .replace(/to the power of|raised to( the)? power of|power of/g, '^')
+        .replace(/\bequals\b|=|\bis\b/g, '=')
+        .replace(/percent/g, '%')
+        .replace(/(\d+)\s*%/g, '($1/100)')
+        .replace(/(\d)\s*x\s*(\d)/g, '$1*$2')
+        .replace(/[^0-9a-z+\-*/=^%.()]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      return text;
+    }
+
+    async function queryWolframAlphaFull(input) {
+      try {
+        const encodedInput = encodeURIComponent(input);
+        const apiUrl = `https://api.wolframalpha.com/v2/query?input=${encodedInput}&appid=${WOLFRAM_APPID}&format=plaintext,image&output=JSON`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error('Failed to fetch WolframAlpha data');
+        const proxyData = await response.json();
+        const data = JSON.parse(proxyData.contents);
+
+        if (!data.queryresult || !data.queryresult.success) {
+          return null;
+        }
+
+        let resultHTML = '';
+        for (const pod of data.queryresult.pods) {
+          if (!pod.subpods || pod.subpods.length === 0) continue;
+          const subpod = pod.subpods[0];
+          resultHTML += `<div><strong>${pod.title}</strong><br>`;
+          if (subpod.plaintext) {
+            resultHTML += `<pre style="white-space: pre-wrap;">${subpod.plaintext}</pre>`;
+          }
+          if (subpod.img && subpod.img.src) {
+            resultHTML += `<img src="${subpod.img.src}" alt="${pod.title}"/>`;
+          }
+          resultHTML += `</div><br/>`;
+        }
+        return resultHTML || null;
+
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function processQuery(query) {
+      appendMessage(query, 'user');
+
+      if (!query.trim()) {
+        appendMessage("Please enter a math question.", 'bot', true);
+        return;
+      }
+
+      // Always Math mode now
+      const processed = preprocess(query);
+      try {
+        // Try mathjs first
+        const evalResult = math.evaluate(processed, variables);
+        if (evalResult !== undefined) {
+          variables = {...variables, ans: evalResult};
+          appendMessage(String(evalResult), 'bot');
+          return;
+        }
+      } catch {
+        // fallthrough to WolframAlpha query
+      }
+
+      // Try WolframAlpha with rich pods
+      const wolframResult = await queryWolframAlphaFull(query);
+      if (wolframResult) {
+        appendHTMLMessage(wolframResult, 'bot');
+        return;
+      }
+
+      appendMessage("I couldn't solve this math problem.", 'bot', true);
+    }
+
+    chatForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!chatInput.value.trim()) return;
+      chatInput.disabled = true;
+      await processQuery(chatInput.value);
+      chatInput.value = '';
+      chatInput.disabled = false;
+      chatInput.focus();
+    });
+
+    // Voice recognition
+    if ('webkitSpeechRecognition' in window) {
+      let recognition = new webkitSpeechRecognition();
+      recognition.continuous = false;
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+
+      voiceBtn.addEventListener('click', () => {
+        recognition.start();
+      });
+
+      recognition.onresult = (event) => {
+        if (event.results.length > 0) {
+          chatInput.value = event.results[0][0].transcript;
+          chatInput.focus();
+        }
+      };
+
+      recognition.onerror = () => {
+        recognition.stop();
+      };
+    } else {
+      voiceBtn.disabled = true;
+      voiceBtn.title = 'Voice recognition not supported';
+    }
+
+    // Image upload and OCR
+    imageBtn.addEventListener('click', () => imageInput.click());
+
+    imageInput.addEventListener('change', () => {
+      if (imageInput.files.length === 0) return;
+      const file = imageInput.files[0];
+      Tesseract.recognize(file, 'eng', { logger: m => console.log(m) })
+        .then(({ data: { text } }) => {
+          chatInput.value = text.trim();
+          chatInput.focus();
+        })
+        .catch(() => {
+          appendMessage("OCR failed. Please try again with a clearer image.", 'bot', true);
+        });
+      imageInput.value = '';
+    });
+
+    // THEME TOGGLE
+    function updateThemeUI() {
+      if(document.body.classList.contains('light-mode')) {
+        themeToggle.textContent = '🌙';
+        themeToggle.title = 'Switch to dark mode';
+      } else {
+        themeToggle.textContent = '☀️';
+        themeToggle.title = 'Switch to light mode';
+      }
+    }
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      updateThemeUI();
+    });
+    updateThemeUI();
+
+    // PARTICLES
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = random(0, window.innerWidth);
+        this.y = random(window.innerHeight, window.innerHeight + 100);
+        this.size = random(2, 6);
+        this.speedY = random(0.3, 1);
+        this.speedX = random(-0.3, 0.3);
+        this.opacity = random(0.1, 0.4);
+        this.color = '#FF8C66';
+      }
+
+      update() {
+        this.y -= this.speedY;
+        this.x += this.speedX;
+        if (this.y < -this.size || this.x < -this.size || this.x > window.innerWidth + this.size) {
+          this.reset();
+          this.y = window.innerHeight + this.size;
+        }
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(255, 140, 102, ${this.opacity})`;
+        // Adjust shadow/glow depending on theme for better visibility
+        if (document.body.classList.contains('light-mode')) {
+          ctx.shadowColor = 'rgba(255, 140, 102, 0.7)';
+          ctx.shadowBlur = 10;
+        } else {
+          ctx.shadowColor = '#FF8C66';
+          ctx.shadowBlur = 5;
+        }
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0; // reset
+      }
+    }
+
+    function initParticles() {
+      particles = [];
+      for (let i = 0; i < 100; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of particles) {
+        p.update();
+        p.draw();
+      }
+      requestAnimationFrame(animateParticles);
+    }
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      initParticles();
+    });
+
+    resizeCanvas();
+    initParticles();
+    animateParticles();
+
+  </script>
+</body>
+</html>
